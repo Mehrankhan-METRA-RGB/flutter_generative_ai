@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gemini/Data/data.dart';
 import 'package:flutter_gemini/Presentation/Widgets/Chat/chat_screen.dart';
 
 void main() {
@@ -13,7 +12,9 @@ class GenerativeAISample extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      onGenerateTitle: (context) => 'Mr AI',
       title: 'Mr AI',
+      themeAnimationStyle: AnimationStyle(curve: Curves.decelerate),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           brightness: Brightness.dark,
@@ -21,7 +22,7 @@ class GenerativeAISample extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const ChatScreen(apiKey: apiKey, title: 'Mr AI'),
+      home: const ChatScreen(title: 'Mr AI'),
     );
   }
 }

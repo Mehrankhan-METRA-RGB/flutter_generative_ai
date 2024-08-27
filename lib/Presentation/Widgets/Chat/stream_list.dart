@@ -15,62 +15,48 @@ class _ChatListStreamState extends State<ChatListStream> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller.resStreams.stream.listen((a) {
-      print('LISTEN:${a.candidates.first.content.role}');
-      setState(() {});
-    });
   }
+
+  List<Map<String, dynamic>> chat = [];
 
   @override
   Widget build(BuildContext context) {
-    var history = controller.chat.history;
-    return ListView.builder(
-      shrinkWrap: true,
-      controller: controller.scrollController,
-      itemBuilder: (context, idx) {
-        var content = history.toList()[idx];
-        var text = content.
-            // parts.map((e) => e.toString()).join('');
-            parts
-            .whereType<TextPart>()
-            .map<String>((e) => e.text)
-            .join('');
-        return MessageTile(
-          text: text,
-          isLastTyping: history.isNotEmpty ? history.length - 1 == idx : false,
-          isFromUser: content.role == 'user',
-        );
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      // initialData: controller.chat.history.toList(),
+      stream: controller.chatStream.stream,
+      builder: (
+        context,
+        snap,
+      ) {
+        print(snap);
+        if (snap.hasData) {
+          var contents = snap.data!.toList();
+          return ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            controller: controller.scrollController,
+            itemBuilder: (context, idx) {
+              Content content = contents[idx]['content'] as Content;
+              var text = content.parts
+                  .whereType<TextPart>()
+                  .map<String>((e) => e.text)
+                  .join('');
+              return MessageTile(
+                text: text,
+                isLastTyping: chat.isNotEmpty ? chat.length - 1 == idx : false,
+                isFromUser: content.role == 'user',
+              );
+            },
+            itemCount: contents.length,
+          );
+        } else if (snap.hasError) {
+          return Center(child: Text('Error: ${snap.error}'));
+        } else {
+          return const Center(
+            child: Text("No Chat Found"),
+          );
+        }
       },
-      itemCount: controller.chat.history.length,
     );
-
-    // StreamBuilder<GenerateContentResponse>(
-    //     stream: controller.resStreams.stream,
-    //     builder: (context, snapshot) {
-    //       print('SNAP:${snapshot.data}');
-    //       var history = controller.chat.history;
-    //       if (snapshot.hasData) {
-    //         return ListView.builder(
-    //           shrinkWrap: true,
-    //           controller: controller.scrollController,
-    //           itemBuilder: (context, idx) {
-    //             var content = history.toList()[idx];
-    //             var text = content.
-    //                 // parts.map((e) => e.toString()).join('');
-    //                 parts
-    //                 .whereType<TextPart>()
-    //                 .map<String>((e) => e.text)
-    //                 .join('');
-    //             return MessageTile(
-    //               text: text,
-    //               isFromUser: content.role == 'user',
-    //             );
-    //           },
-    //           itemCount: controller.chat.history.length,
-    //         );
-    //       }
-    //
-    //       return const Center(child: CircularProgressIndicator());
-    //     });
   }
 }
